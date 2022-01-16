@@ -2,16 +2,14 @@ import React, { useEffect } from 'react';
 import './App.css';
 import Feed from './components/Feed';
 import Header from './components/Header';
-import { useSelector } from 'react-redux'
-import { login, logout, selectUser } from './features/userSlice';
+import { login, logout } from './features/userSlice';
 import Login from './components/Login';
 import { auth, db } from './firebase';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import Spinner from './components/Spinner'
 import { onAuthStateChanged } from 'firebase/auth';
-import { useDispatch } from 'react-redux';
-
+import { useDispatch, useSelector } from 'react-redux';
 
 function App() {
   const dispatch = useDispatch();
@@ -31,12 +29,13 @@ function App() {
       }
     })
 
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
 
     if(user) {
-      setDoc(doc(db, "users", user.uid), {
+     const docRef = setDoc(doc(db, "users", user.uid), {
+        id: user.uid,
         name: user.displayName,
         email: user.email,
         timestamp: serverTimestamp(),

@@ -1,19 +1,43 @@
 import { Avatar } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import RecentActorsIcon from "@mui/icons-material/CollectionsBookmark";
 import RecentItems from "./RecentItems";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
-import { useSelector } from "react-redux";
-import { selectUser } from "../features/userSlice";
+import { auth, db } from "../firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { login, selectUser } from "../features/userSlice";
+import EditIcon from "@mui/icons-material/Edit";
+import { collection, doc, documentId, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 
 const Sidebar = () => {
   const [user] = useAuthState(auth)
   const currentUser = useSelector(selectUser)
+  const [profileInput, setProfileInput] = useState(false) 
+  const [_name, setName] = useState("")
+  const [_email, setEmail] = useState("")
+  const dispatch = useDispatch()
 
-  console.log(user)
+  const show = () => {
+    setProfileInput(true)
+
+    if(profileInput === true) {
+      setProfileInput(false)
+    }
+    
+  }
+  const update = async () => {
+    await updateDoc(doc(db, "users", user.uid), {
+      name: _name,
+      email: _email,
+    })
+    alert(`Your updated name is ${_name} and email is ${_email}`)
+  }
+
+  const authType = user.providerData[0].providerId
+
   return (
     <Container>
       <SidebarTop>
@@ -36,6 +60,14 @@ const Sidebar = () => {
           >
             {!user || !currentUser ? "user@gmail.com" : user.email || currentUser.email}
           </p>
+          <div className={authType === "password" ? "block mt-2" : "hidden"}>
+          <EditIcon className="hover:cursor-pointer" onClick={show}/>
+          <div className={profileInput === true ? "block mt-1 space-y-2" : "hidden"}>
+          <input type="text" value={_name} onChange={(e) => {setName(e.target.value)}} className="border border-[1.5px solid gray] rounded-md p-2 outline-none" placeholder="Update Name"/>
+          <input type="text" value={_email} onChange={(e) => {setEmail(e.target.value)}} className="border border-[1.5px solid gray] rounded-md p-2 outline-none" placeholder="Update Email"/>
+          <button className="p-2 my-2 ml-28 text-[12px] bg-white border border-[1px solid gray] outline-none rounded-md hover:bg-blue-100 cursor-pointer" onClick={update}>Update</button>
+          </div>
+          </div>
         </SidebarTopUpper>
 
         <SidebarTopMiddle>

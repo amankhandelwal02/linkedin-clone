@@ -1,16 +1,48 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Avatar } from "@mui/material";
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import CommentIcon from '@mui/icons-material/Comment';
 import SendIcon from '@mui/icons-material/Send';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import SelectIcons from "./SelectIcons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
 
-const Posts = forwardRef(({ name, email, message, userImg, time }, ref) => {
+const Posts = forwardRef(({ name, email, message, userImg, time, id }, ref) => {
   const [user] = useAuthState(auth)
+  const [likes, setLikes] = useState([]);
+  const [hasLiked, setHasLiked] = useState(false);
+
+  useEffect(
+    () =>
+      onSnapshot(collection(db, "posts", id, "likes"), (snapshot) =>
+        setLikes(snapshot.docs)
+      ),
+    [db, id]
+  );
+
+  useEffect(
+    () =>
+      setHasLiked(
+        likes.findIndex((like) => like.id === user.uid) !== -1
+      ),
+    [likes]
+  );
+
+  const postLike = async () => {
+    if (hasLiked) {
+      await deleteDoc(doc(db, "posts", id, "likes", user.uid));
+    } 
+    else {
+      await setDoc(doc(db, "posts", id, "likes", user.uid), {
+        username: user.displayName,
+      });
+    }
+  };
+
   return (
     <div ref={ref}>
       <Post>
@@ -40,7 +72,11 @@ const Posts = forwardRef(({ name, email, message, userImg, time }, ref) => {
         </PostBody>
 
         <PostIcon>
-        <SelectIcons Icon={ThumbUpOffAltIcon} name="Like"  />
+        <SelectIcons className='transition-all hover:scale-110' Icon={hasLiked ? ThumbUpIcon : ThumbUpOffAltIcon} name={likes.length > 0 && (
+          <p>
+            {likes.length} {likes.length > 1 ? "Likes" : "Like"}
+          </p>
+        )} onClick={postLike} />
           <SelectIcons Icon={CommentIcon} name="Comment" />
           <SelectIcons Icon={IosShareIcon} name="Share" />
           <SelectIcons Icon={SendIcon} name="Send" />

@@ -222,6 +222,14 @@ transition: 0.3s;
   }
 }
 
+.postBtn {
+  cursor: pointer;
+}
+
+.postBtn:hover {
+}
+
+
 
 
 

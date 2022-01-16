@@ -1,11 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const SelectIcons = ( { Icon, name, color } ) => {
+const SelectIcons = ( { Icon, name, onClick, className } ) => {
   return (
-    <Container>
+    <Container onClick={onClick} className={className}>
 
-        {Icon && ( <Icon className="iconImage" style={{ color: "#666666"}}/>)}
+        {Icon && ( <Icon className="iconImage" style={{ color: "#666666"}} />)}
         <p className='iconTag'>{name}</p>
       
     </Container>

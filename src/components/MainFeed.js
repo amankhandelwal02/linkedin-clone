@@ -19,14 +19,13 @@ import {
 import { db } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "../features/userSlice";
-import FlipMove from 'react-flip-move';
+import FlipMove from 'react-flip-move';;
 
 const MainFeed = () => {
 
   const currentUser = useSelector(selectUser)
-
   const [user] = useAuthState(auth)
   const [posts, setPosts] = useState([]);
   const [input, setInput] = useState("");
@@ -57,10 +56,10 @@ const MainFeed = () => {
   };
 
   return (
-    <Container>
+    <Container >
       <FeedTopHeader>
         <InputContainer>
-          <UserAvatar sx={{ height: "50px", width: "50px" }} src={!user || !currentUser ? Avatar : user.photoURL || currentUser.image}>
+          <UserAvatar sx={{ height: "50px", width: "50px" }} src={!user || !currentUser ? Avatar : user.photoURL || currentUser.image} > 
           {!user?.photoURL || !currentUser?.image ? user?.displayName[0].toUpperCase() || currentUser.name[0].toUpperCase() : user?.photoURL || currentUser?.image}
           </UserAvatar>
           <form action="" style={{ flex: "1" }}>
@@ -82,11 +81,11 @@ const MainFeed = () => {
           <SelectIcons
             Icon={PhotoSizeSelectActualIcon}
             name="Photos"
-            color="#b0dae4"
+            
           />
-          <SelectIcons Icon={FeaturedVideoIcon} name="Videos" color="#7fc15e" />
-          <SelectIcons Icon={PollIcon} name="Polls" color="#e7a33e" />
-          <SelectIcons Icon={NoteIcon} name="Write post" color="#fc9295" />
+          <SelectIcons Icon={FeaturedVideoIcon} name="Videos"  />
+          <SelectIcons Icon={PollIcon} name="Polls"  />
+          <SelectIcons Icon={NoteIcon} name="Write post"  />
         </SelectIcon>
       </FeedTopHeader>
 
@@ -95,6 +94,7 @@ const MainFeed = () => {
         {posts.map((post) => (
           <Posts
             key={post.id}
+            id={post.id}
             name={post.data.name}
             email={post.data.email}
             message={post.data.message}
